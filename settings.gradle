@@ -3,6 +3,6 @@ include ':adapter-paging'
 include ':adapter-viewgroup'
 include ':adapter-recyclerview'
 include ':adapter'
-include ':configurator'
+include ':core'
 include ':sample'
-rootProject.name = "configurator-android"
+rootProject.name = "configurator"

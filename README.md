@@ -120,21 +120,21 @@ There is built-in support for [Paging 3](https://developer.android.com/topic/lib
 ### Artefacts
 
 ```gradle
-// basic components
-implement "configurator"
+// core
+implementation "com.github.sdelaysam.configurator-android:core:$latest_version"
 
 // adapter for RecyclerView
-implement "adapter-recyclerview"
+implementation "com.github.sdelaysam.configurator-android:adapter-recyclerview:$latest_version"
 
 // adapter for ViewGroup
-implement "adapter-viewgroup"
+implementation "com.github.sdelaysam.configurator-android:adapter-viewgroup:$latest_version"
 
 // adapter for Paging3
-implement "adapter-paging"
+implementation "com.github.sdelaysam.configurator-android:adapter-paging:$latest_version"
 
 // annotation processor (requires 'kotlin-kapt' plugin)
-implement "processor"
-kapt "processor"
+implementation "com.github.sdelaysam.configurator-android:processor:$latest_version"
+kapt "com.github.sdelaysam.configurator-android:processor:$latest_version"
 
 ```
 
