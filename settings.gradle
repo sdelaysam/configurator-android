@@ -1,0 +1,8 @@
+include ':processor'
+include ':adapter-paging'
+include ':adapter-viewgroup'
+include ':adapter-recyclerview'
+include ':adapter'
+include ':configurator'
+include ':sample'
+rootProject.name = "configurator-android"
