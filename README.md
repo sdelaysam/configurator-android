@@ -3,30 +3,26 @@
 Ideas behind this library:
 - breakdown UI logic into small reusable components
 - let view model construct and control them
-- allow `Activity`, `Fragment` or `RecyclerView` to use them
+- allow `Activity`, `Fragment` or `RecyclerView` use them
 - make them reactive and lifecycle-aware
 
 ### Building blocks
 
-`Configurator` is self-explanatory interface with two methods - `configure` and `reset`.
+`Configurator` is simply an interface:
 ```kotlin
 interface Configurator<T> {
     fun configure(target: T)
     fun reset(target: T)
 }
 ```
-Target `T` is not constrained - it can be a `View`, a `ViewBinding` or anything else depending on your needs.
+Target `T` is not constrained: it can be a `View`, a `ViewBinding` or anything else depending on your needs.
 
-To make `Configurator` reactive, one should implement `RequiresCoroutineScope` interface (only `Flow` is supported atm) or subclass abstract `CoroutineConfigurator`.
-
-`Configurator` can also be stateful: save and restore its target state as `Parcelable`. Most of the time its not needed - configurator itself is a data holder and configurator's target (let's say a `View`) is saving its state automatically being in the view hierarchy.
-But sometimes, being in a `RecyclerView.ViewHolder`, configurator may want to save its target state. To let this happen, configurator be a `StatefulConfigurator<T>`.
+Reactive `Configurator` implements `RequiresCoroutineScope` and defined as abstract  `CoroutineConfigurator<T>` (only `Flow` is supported atm).
 
 ### Working with RecyclerView
 
-`Configurator` is meant to be a data holder. View model can expose a list of `Configurator` to feed it to `RecyclerViewAdapter` - built-in adapter for the `RecyclerView`.
-To make it work, one should implement `AdapterEntry` interface on a configurator.
-`AdapterEntry` will let adapter identify an item and build proper `ViewHolder`
+To use configurator in `RecyclerView`, first make it an `AdapterEntry` (or subclass either  `AdapterBasicConfigurator<T>` or `AdapterCoroutineConfigurator<T>`):
+
 ```kotlin
 interface AdapterEntry {
     val viewType: Int
@@ -34,10 +30,9 @@ interface AdapterEntry {
     val contentHash: Int
 }
 ```
-`viewType` - identifier to find proper match against `ViewHolder.Factory` (will be shown later).
-`contentId` and `contentHash` are used by `DiffCallback`.
+where `viewType` is a unique constant identifiying the view (could be `R.layout.id` or any other final constant). `contentId` and `contentHash` are used by `DiffCallback`.
 
-Basic configurator for `RecyclerView` can look like
+Basic configurator for `RecyclerView` can look like the following:
 ```kotlin
 @GenerateViewHolder
 class RowConfigurator(
@@ -45,7 +40,7 @@ class RowConfigurator(
     private val text: String
 ) : AdapterBasicConfigurator<TextView>() {
 
-    override val viewType: Int = VIEW_TYPE_TEXT // arbitraty constant
+    override val viewType: Int = VIEW_TYPE_TEXT
     override val contentHash: Int = text.hashCode()
 
     override fun onConfigure(target: TextView) {
@@ -53,12 +48,11 @@ class RowConfigurator(
     }
 }
 ```
-First, configurator subclasses `AdapterBasicConfigurator` - basically its just a `Configurator` plus  `AdapterEntry`. And second, configurator is annotated with `GenerateViewHolder` annotation.
+As you might have noticed, configurator is annotated with `GenerateViewHolder` annotation.
 
 #### Generate view holder
 
-Although library provides basic implementation for a `RecyclerView.ViewHolder` which works with configurators (see `ConfiguratorViewHolder`), it requires some boilerplate code to create a viewholder for each configurator. This is why `GenerateViewHolder` is here.
-It tells annotation process to generate the following code:
+Although library provides basic implementation for a `RecyclerView.ViewHolder` - `ConfiguratorViewHolder` - it requires to write some boilerplate code to create a viewholder for each configurator. So you can use `GenerateViewHolder`to generate this boilerplate:
 ```kotlin
 public class RowViewHolder(
   view: TextView
@@ -74,7 +68,7 @@ public class RowViewHolder(
 }
 ```
 
-All you have to do now, is register this view holder. Now, adapter is ready to render your configurator. This is how it may look like
+Then you register `ViewHolder.Factory` in adapter and its ready to go:
 ```kotlin
 // view model
 val items = listOf(
@@ -91,18 +85,18 @@ adapter.reload(viewModel.items)
 recyclerView.adapter = adapter
 ```
 
-For more complex and detailed example please refer to the sample app.
+Please see the complete example in the sample app.
 
 ### Working with ViewGroup
 
 Similarly, it is possible to use configurators to configure child views of some layout.
-It can be done using `ViewGroupAdapter` and same `GenerateViewHolder` annotation, but with a special type
+It can be done using `ViewGroupAdapter` and same `GenerateViewHolder` annotation, but with a special type:
 ```kotlin
 @GenerateViewHolder(type = ViewHolderType.VIEW_GROUP)
 class RowConfigurator
 ```
 
-Then, tie everything together
+Then tie everything together:
 ```kotlin
 
 val adapter = LinearLayoutAdapter()
