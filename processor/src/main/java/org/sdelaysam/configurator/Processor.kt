@@ -64,10 +64,26 @@ class Processor : AbstractProcessor() {
             return false
         }
 
-        val viewTypeElement =
-            element.enclosedElements.find { it.simpleName.contentEquals("viewType") }
-        val identity = (viewTypeElement as? VariableElement)?.constantValue as? Int
-        if (identity == null) {
+        var viewType: Int? = null
+        var viewTypedElement = element as? TypeElement
+        while (viewTypedElement != null) {
+            viewType = elementUtils.getAllMembers(viewTypedElement)
+                .find { it.simpleName.contentEquals("viewType") }
+                ?.let { it as? VariableElement }
+                ?.constantValue as? Int
+            if (viewType != null) break
+            viewTypedElement =
+                (viewTypedElement.superclass as? DeclaredType)?.asElement() as? TypeElement
+        }
+
+        if (viewType == null) {
+            elementUtils.getAllMembers(element as TypeElement)
+                .forEach {
+                    processingEnv.messager.printMessage(
+                        Diagnostic.Kind.NOTE,
+                        "${it.simpleName}\r\n"
+                    )
+                }
             processingEnv.messager.printMessage(
                 Diagnostic.Kind.ERROR,
                 "$className should have constant \"viewType\""
@@ -81,7 +97,10 @@ class Processor : AbstractProcessor() {
         )
 
         if (!typeUtils.isSubtype(elementType, configuratorType)) {
-            processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "$className should extend Configurator<T>")
+            processingEnv.messager.printMessage(
+                Diagnostic.Kind.ERROR,
+                "$className should extend Configurator<T>"
+            )
             return false
         }
 
@@ -107,7 +126,8 @@ class Processor : AbstractProcessor() {
                     if (viewBindingType != null && typeUtils.isAssignable(type, viewBindingType)) {
                         try {
                             val typeElement = (type as DeclaredType).asElement()
-                            generated = generateViewBindingHolder(target, element, typeElement, identity)
+                            generated =
+                                generateViewBindingHolder(target, element, typeElement, viewType)
                         } catch (e: Exception) {
                             e.printStackTrace()
                         }
@@ -116,7 +136,7 @@ class Processor : AbstractProcessor() {
                     if (typeUtils.isSubtype(type, androidViewType)) {
                         try {
                             val typeElement = (type as DeclaredType).asElement()
-                            generated = generateViewHolder(target, element, typeElement, identity)
+                            generated = generateViewHolder(target, element, typeElement, viewType)
                         } catch (e: Exception) {
                             e.printStackTrace()
                         }
@@ -195,9 +215,30 @@ class Processor : AbstractProcessor() {
     ): Boolean {
         return when (type) {
             ViewHolderType.ALL ->
-                generateClass(ViewHolderType.RECYCLER_VIEW, configurator, view, viewType, superClassInit, factoryInit)
-                    && generateClass(ViewHolderType.VIEW_GROUP, configurator, view, viewType, superClassInit, factoryInit)
-            else -> generateClass(type.packageSuffix, configurator, view, viewType, superClassInit, factoryInit)
+                generateClass(
+                    ViewHolderType.RECYCLER_VIEW,
+                    configurator,
+                    view,
+                    viewType,
+                    superClassInit,
+                    factoryInit
+                )
+                    && generateClass(
+                    ViewHolderType.VIEW_GROUP,
+                    configurator,
+                    view,
+                    viewType,
+                    superClassInit,
+                    factoryInit
+                )
+            else -> generateClass(
+                type.packageSuffix,
+                configurator,
+                view,
+                viewType,
+                superClassInit,
+                factoryInit
+            )
         }
     }
 
