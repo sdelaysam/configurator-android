@@ -38,8 +38,8 @@ abstract class ViewGroupAdapter(
         factories.put(factory.viewType, factory)
     }
 
-    fun reload(items: List<AdapterEntry>) {
-        val fullReload = !useDiffer || differ.currentList.isEmpty()
+    fun reload(items: List<AdapterEntry>, animated: Boolean = true) {
+        val fullReload = !useDiffer || !animated || differ.currentList.isEmpty()
         if (fullReload && differ.setList(items)) {
             view?.rebuild()
         } else {
@@ -50,11 +50,13 @@ abstract class ViewGroupAdapter(
     fun attach(view: ViewGroup) {
         if (this.view == view) return
         this.view = view
+        onAttach(view)
         view.rebuild()
     }
 
     fun detach(removeViews: Boolean = false) {
         val view = this.view ?: return
+        onDetach(view)
         if (removeViews) {
             removeAllViews(view)
         }
@@ -88,6 +90,10 @@ abstract class ViewGroupAdapter(
     abstract fun removeViews(viewGroup: ViewGroup, position: Int, count: Int)
 
     abstract fun removeAllViews(viewGroup: ViewGroup)
+
+    protected open fun onAttach(viewGroup: ViewGroup) {}
+
+    protected open fun onDetach(viewGroup: ViewGroup) {}
 
     private fun processDiff() {
         val view = this.view ?: run {
