@@ -17,7 +17,7 @@ abstract class ConfiguratorViewHolder<T, C: Configurator<T>>(
     view: View
 ) : BasicViewHolder(view) {
 
-    private var configurator: C? = null
+    protected var configurator: C? = null
 
     override fun onBind(data: AdapterEntry) {
         super.onBind(data)
