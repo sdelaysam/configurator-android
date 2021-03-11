@@ -26,6 +26,9 @@ open class PagingAdapter(
         stateRestorationPolicy = StateRestorationPolicy.PREVENT_WHEN_EMPTY
     }
 
+    val items: List<AdapterEntry?>
+        get() = snapshot()
+
     fun register(factory: BasicViewHolder.Factory) {
         factories[factory.viewType] = factory
     }

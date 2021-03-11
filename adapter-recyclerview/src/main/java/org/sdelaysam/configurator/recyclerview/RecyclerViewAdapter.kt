@@ -34,6 +34,9 @@ open class RecyclerViewAdapter(
         stateRestorationPolicy = StateRestorationPolicy.PREVENT_WHEN_EMPTY
     }
 
+    val items: List<AdapterEntry>
+        get() = differ.currentList
+
     fun register(factory: BasicViewHolder.Factory) {
         factories[factory.viewType] = factory
     }

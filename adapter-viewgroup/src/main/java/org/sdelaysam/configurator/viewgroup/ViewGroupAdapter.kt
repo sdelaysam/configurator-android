@@ -34,6 +34,9 @@ abstract class ViewGroupAdapter(
         )
     }
 
+    val items: List<AdapterEntry>
+        get() = differ.currentList
+
     fun register(factory: BasicViewHolder.Factory) {
         factories.put(factory.viewType, factory)
     }
