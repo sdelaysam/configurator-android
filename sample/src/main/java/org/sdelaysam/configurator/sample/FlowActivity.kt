@@ -1,27 +1,28 @@
 package org.sdelaysam.configurator.sample
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import org.sdelaysam.configurator.sample.databinding.ActivityFlowBinding
 import org.sdelaysam.configurator.sample.databinding.ActivityMainBinding
 import org.sdelaysam.configurator.sample.util.bind
 
-class MainActivity : AppCompatActivity() {
+/**
+ * Created on 31.03.2021.
+ * @author sdelaysam
+ */
+class FlowActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
+    private lateinit var binding: ActivityFlowBinding
 
-    private val viewModel: MainViewModel by viewModels()
+    private val viewModel: FlowViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
+        binding = ActivityFlowBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        bind(viewModel.list, binding.recyclerView)
+        bind(viewModel.configurator, binding.root)
         bind(viewModel.button, binding.buttonLayout)
-        binding.textButton.setOnClickListener {
-            startActivity(Intent(this, FlowActivity::class.java))
-        }
     }
 }
 

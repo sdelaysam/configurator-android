@@ -6,7 +6,7 @@ plugins {
 
 android {
     compileSdkVersion 30
-    buildToolsVersion "30.0.2"
+    buildToolsVersion "30.0.3"
 
     defaultConfig {
         minSdkVersion 21
@@ -34,7 +34,7 @@ android {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation project(':core')
-    api "androidx.recyclerview:recyclerview:1.2.0-beta02"
+    api "androidx.recyclerview:recyclerview:1.2.0-rc01"
 }
 
 afterEvaluate {

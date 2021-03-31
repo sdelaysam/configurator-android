@@ -7,7 +7,7 @@ plugins {
 
 android {
     compileSdkVersion 30
-    buildToolsVersion "30.0.2"
+    buildToolsVersion "30.0.3"
 
     defaultConfig {
         minSdkVersion 21
@@ -37,7 +37,7 @@ dependencies {
     implementation project(':core')
     api project(":adapter-recyclerview")
     api project(":adapter")
-    api "androidx.paging:paging-runtime-ktx:3.0.0-beta01"
+    api "androidx.paging:paging-runtime-ktx:3.0.0-beta03"
 }
 
 afterEvaluate {
