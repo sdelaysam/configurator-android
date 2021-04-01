@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.ListUpdateCallback
+import androidx.transition.Transition
 import androidx.transition.TransitionManager
 import org.sdelaysam.configurator.adapter.AdapterEntry
 import org.sdelaysam.configurator.adapter.createDiffCallback
@@ -101,6 +102,8 @@ abstract class ViewGroupAdapter(
 
     protected open fun onDetach(viewGroup: ViewGroup) {}
 
+    protected open fun getTransition(viewGroup: ViewGroup): Transition? = null
+
     private fun processDiff(animated: Boolean) {
         val view = this.view ?: run {
             diffOperations.clear()
@@ -109,7 +112,7 @@ abstract class ViewGroupAdapter(
 
         if (diffOperations.size == 1) {
             if (animated) {
-                TransitionManager.beginDelayedTransition(view)
+                TransitionManager.beginDelayedTransition(view, getTransition(view))
             }
             processOperation(diffOperations.first())
         } else {
