@@ -6,10 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CallSuper
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.*
 import org.sdelaysam.configurator.RequiresCoroutineScope
 import org.sdelaysam.configurator.adapter.AdapterEntry
 
@@ -24,9 +21,11 @@ abstract class BasicViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
     @CallSuper
     open fun onBind(data: AdapterEntry) {
-        coroutineScope?.cancel()
+        coroutineScope?.coroutineContext?.cancelChildren()
         if (data is RequiresCoroutineScope) {
-            coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+            if (coroutineScope == null) {
+                coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+            }
             data.setCoroutineScope(coroutineScope!!)
         } else {
             coroutineScope = null
@@ -43,8 +42,7 @@ abstract class BasicViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
     @CallSuper
     open fun onRecycled() {
-        coroutineScope?.cancel()
-        coroutineScope = null
+        coroutineScope?.coroutineContext?.cancelChildren()
     }
 
     interface Factory {
