@@ -152,6 +152,9 @@ abstract class ViewGroupAdapter(
     }
 
     private fun ViewGroup.rebuild() {
+        viewHolders.forEach {
+            it.onRecycled()
+        }
         viewHolders.clear()
         removeAllViews(this)
         differ.currentList.indices.forEach {
