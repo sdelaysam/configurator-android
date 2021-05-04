@@ -2,6 +2,7 @@ package org.sdelaysam.configurator
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelChildren
 import java.lang.ref.WeakReference
 
 /**
@@ -19,6 +20,7 @@ abstract class CoroutineConfigurator<T> : Configurator<T>, RequiresCoroutineScop
 
     final override fun configure(target: T) {
         val scope = coroutineScope?.get() ?: return
+        scope.coroutineContext.cancelChildren()
         scope.onConfigure(target)
     }
 
